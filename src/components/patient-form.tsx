@@ -13,10 +13,21 @@ const TREATMENTS = [
   'Outro',
 ]
 
+const YES_NO_UNKNOWN = ['Sim', 'Não', 'Não sabe']
+
 const WHATSAPP_NUMBER = process.env.NEXT_PUBLIC_WHATSAPP_NUMBER ?? ''
 
 export default function PatientForm() {
   const [treatment, setTreatment] = useState('')
+  const [lastTreatmentCompleted, setLastTreatmentCompleted] = useState('')
+  const [medicalTreatment, setMedicalTreatment] = useState('')
+  const [medication, setMedication] = useState('')
+  const [diabetic, setDiabetic] = useState('')
+  const [cardiopath, setCardiopath] = useState('')
+  const [hypertensive, setHypertensive] = useState('')
+  const [hemorrhageHistory, setHemorrhageHistory] = useState('')
+  const [infectiousDisease, setInfectiousDisease] = useState('')
+  const [medicationAllergy, setMedicationAllergy] = useState('')
   const [submitted, setSubmitted] = useState(false)
 
   function handleSubmit(event: FormEvent<HTMLFormElement>) {
@@ -42,11 +53,27 @@ export default function PatientForm() {
       `Endereço: ${data.address || 'Não informado'}`,
       `Idade: ${data.age || 'Não informado'}`,
       '',
-      'HISTÓRICO ODONTOLÓGICO',
-      String(data.dentalHistory || 'Não informado'),
-      '',
-      'HISTÓRICO MÉDICO',
-      String(data.medicalHistory || 'Não informado'),
+      'HISTÓRICO CLÍNICO',
+      `Queixa principal: ${data.chiefComplaint || 'Não informado'}`,
+      `Último atendimento: ${data.lastTreatment || 'Não informado'}`,
+      `Último atendimento concluído: ${data.lastTreatmentCompleted || 'Não informado'}`,
+      `Está em tratamento médico? ${data.medicalTreatment || 'Não informado'}`,
+      `Toma algum medicamento? ${data.medication || 'Não informado'}`,
+      ...(data.medication === 'Sim'
+        ? [`Medicamento utilizado: ${data.medicationUsed || 'Não informado'}`]
+        : []),
+      `É diabético? ${data.diabetic || 'Não informado'}`,
+      `É cardiopata? ${data.cardiopath || 'Não informado'}`,
+      `É hipertenso? ${data.hypertensive || 'Não informado'}`,
+      `Histórico de hemorragia? ${data.hemorrhageHistory || 'Não informado'}`,
+      `Portador de doença infecto contagiosa? ${data.infectiousDisease || 'Não informado'}`,
+      ...(data.infectiousDisease === 'Sim'
+        ? [`Doença infecto contagiosa: ${data.infectiousDiseaseDetails || 'Não informado'}`]
+        : []),
+      `Possui alergia a algum medicamento? ${data.medicationAllergy || 'Não informado'}`,
+      ...(data.medicationAllergy === 'Sim'
+        ? [`Reação a medicamentos alérgicos: ${data.medicationAllergyReaction || 'Não informado'}`]
+        : []),
       '',
       'O paciente declarou ciência de que as informações serão utilizadas para o contato e pré-atendimento odontológico.',
     ].join('\n')
@@ -162,31 +189,217 @@ export default function PatientForm() {
 
               <div className="form-heading form-heading-small">
                 <div>
-                  <span className="kicker">02 — HISTÓRICO</span>
+                  <span className="kicker">02 — HISTÓRICO CLÍNICO</span>
                   <h2>Informações clínicas</h2>
                 </div>
               </div>
 
               <div className="form-grid">
                 <label className="field field-full">
-                  <span>Histórico odontológico *</span>
+                  <span>Queixa principal *</span>
                   <textarea
-                    name="dentalHistory"
-                    rows={6}
-                    placeholder="Ex.: tratamentos anteriores, uso de aparelho, próteses, implantes, cirurgias, dores ou queixas atuais."
+                    name="chiefComplaint"
+                    rows={3}
+                    placeholder="Descreva o motivo principal da consulta / o que está sentindo."
                     required
                   />
                 </label>
 
                 <label className="field field-full">
-                  <span>Histórico médico *</span>
-                  <textarea
-                    name="medicalHistory"
-                    rows={6}
-                    placeholder="Informe condições de saúde relevantes, medicamentos em uso, alergias, cirurgias anteriores e outras informações que considere importantes."
+                  <span>Último atendimento odontológico *</span>
+                  <input
+                    name="lastTreatment"
+                    type="text"
+                    placeholder="Ex.: Limpeza em março/2025, extração em 2023, etc."
                     required
                   />
                 </label>
+
+                <label className="field">
+                  <span>Último atendimento foi concluído? *</span>
+                  <select
+                    name="lastTreatmentCompleted"
+                    value={lastTreatmentCompleted}
+                    onChange={(event) => setLastTreatmentCompleted(event.target.value)}
+                    required
+                  >
+                    <option value="">Selecione uma opção</option>
+                    <option value="Sim">Sim</option>
+                    <option value="Não">Não</option>
+                  </select>
+                </label>
+
+                <label className="field">
+                  <span>Está em tratamento médico? *</span>
+                  <select
+                    name="medicalTreatment"
+                    value={medicalTreatment}
+                    onChange={(event) => setMedicalTreatment(event.target.value)}
+                    required
+                  >
+                    <option value="">Selecione uma opção</option>
+                    {YES_NO_UNKNOWN.map((item) => (
+                      <option key={item} value={item}>
+                        {item}
+                      </option>
+                    ))}
+                  </select>
+                </label>
+
+                <label className="field">
+                  <span>Toma algum medicamento? *</span>
+                  <select
+                    name="medication"
+                    value={medication}
+                    onChange={(event) => setMedication(event.target.value)}
+                    required
+                  >
+                    <option value="">Selecione uma opção</option>
+                    {YES_NO_UNKNOWN.map((item) => (
+                      <option key={item} value={item}>
+                        {item}
+                      </option>
+                    ))}
+                  </select>
+                </label>
+
+                {medication === 'Sim' && (
+                  <label className="field field-full">
+                    <span>Medicamento utilizado *</span>
+                    <input
+                      name="medicationUsed"
+                      type="text"
+                      placeholder="Informe o(s) medicamento(s) e a dosagem, se souber."
+                      required
+                    />
+                  </label>
+                )}
+
+                <label className="field">
+                  <span>É diabético? *</span>
+                  <select
+                    name="diabetic"
+                    value={diabetic}
+                    onChange={(event) => setDiabetic(event.target.value)}
+                    required
+                  >
+                    <option value="">Selecione uma opção</option>
+                    {YES_NO_UNKNOWN.map((item) => (
+                      <option key={item} value={item}>
+                        {item}
+                      </option>
+                    ))}
+                  </select>
+                </label>
+
+                <label className="field">
+                  <span>É cardiopata? *</span>
+                  <select
+                    name="cardiopath"
+                    value={cardiopath}
+                    onChange={(event) => setCardiopath(event.target.value)}
+                    required
+                  >
+                    <option value="">Selecione uma opção</option>
+                    {YES_NO_UNKNOWN.map((item) => (
+                      <option key={item} value={item}>
+                        {item}
+                      </option>
+                    ))}
+                  </select>
+                </label>
+
+                <label className="field">
+                  <span>É hipertenso? *</span>
+                  <select
+                    name="hypertensive"
+                    value={hypertensive}
+                    onChange={(event) => setHypertensive(event.target.value)}
+                    required
+                  >
+                    <option value="">Selecione uma opção</option>
+                    {YES_NO_UNKNOWN.map((item) => (
+                      <option key={item} value={item}>
+                        {item}
+                      </option>
+                    ))}
+                  </select>
+                </label>
+
+                <label className="field">
+                  <span>Histórico de hemorragia? *</span>
+                  <select
+                    name="hemorrhageHistory"
+                    value={hemorrhageHistory}
+                    onChange={(event) => setHemorrhageHistory(event.target.value)}
+                    required
+                  >
+                    <option value="">Selecione uma opção</option>
+                    {YES_NO_UNKNOWN.map((item) => (
+                      <option key={item} value={item}>
+                        {item}
+                      </option>
+                    ))}
+                  </select>
+                </label>
+
+                <label className="field">
+                  <span>Portador de doença infecto contagiosa? *</span>
+                  <select
+                    name="infectiousDisease"
+                    value={infectiousDisease}
+                    onChange={(event) => setInfectiousDisease(event.target.value)}
+                    required
+                  >
+                    <option value="">Selecione uma opção</option>
+                    {YES_NO_UNKNOWN.map((item) => (
+                      <option key={item} value={item}>
+                        {item}
+                      </option>
+                    ))}
+                  </select>
+                </label>
+
+                {infectiousDisease === 'Sim' && (
+                  <label className="field field-full">
+                    <span>Qual doença infecto contagiosa? *</span>
+                    <input
+                      name="infectiousDiseaseDetails"
+                      type="text"
+                      placeholder="Informe a(s) doença(s)."
+                      required
+                    />
+                  </label>
+                )}
+
+                <label className="field">
+                  <span>Possui alergia a algum medicamento? *</span>
+                  <select
+                    name="medicationAllergy"
+                    value={medicationAllergy}
+                    onChange={(event) => setMedicationAllergy(event.target.value)}
+                    required
+                  >
+                    <option value="">Selecione uma opção</option>
+                    {YES_NO_UNKNOWN.map((item) => (
+                      <option key={item} value={item}>
+                        {item}
+                      </option>
+                    ))}
+                  </select>
+                </label>
+
+                {medicationAllergy === 'Sim' && (
+                  <label className="field field-full">
+                    <span>Qual reação apresentou ao(s) medicamento(s)? *</span>
+                    <input
+                      name="medicationAllergyReaction"
+                      type="text"
+                      placeholder="Ex.: coceira, inchaço, falta de ar, etc."
+                      required
+                    />
+                  </label>
+                )}
               </div>
 
               <div className="privacy-box">
