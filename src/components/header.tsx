@@ -7,6 +7,7 @@ const NAV_LINKS = [
   { label: 'Sobre', href: '/sobre-mim' },
   { label: 'Formação', href: '#formacao' },
   { label: 'Casos', href: '#casos' },
+  { label: 'Artigos', href: '#artigos' },
   { label: 'Habilidades', href: '#habilidades' },
 ]
 
@@ -23,7 +24,7 @@ export default function Header() {
   return (
     <header className={scrolled ? 'scrolled' : ''}>
       <nav>
-        <a href="#top" className="brand">
+        <a href="https://dentiscan.vercel.app/" className="brand">
           <Image src="/logo.png" alt="Dentiscan" width={30} height={30} />
           Dentiscan
         </a>

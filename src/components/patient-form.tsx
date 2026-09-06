@@ -5,12 +5,10 @@ import Image from 'next/image'
 
 const TREATMENTS = [
   'Avaliação odontológica',
+  'Restauração dentária',
+  'Tratamento de canal',
+  'Extração dentária',
   'Radiologia odontológica',
-  'Reabilitação oral',
-  'Implantodontia',
-  'Prótese dentária',
-  'Estética odontológica',
-  'Outro',
 ]
 
 const YES_NO_UNKNOWN = ['Sim', 'Não', 'Não sabe']

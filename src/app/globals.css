@@ -594,6 +594,73 @@ h1.hero-title .grad {
   margin: 0;
 }
 
+/* ---------- artigos ---------- */
+.article-card-image {
+  position: relative;
+  width: calc(100% + 52px);
+  margin: -26px -26px 20px;
+  aspect-ratio: 16 / 10;
+  overflow: hidden;
+  border-radius: 16px 16px 0 0;
+}
+.article-link {
+  display: inline-block;
+  margin-top: 16px;
+  font-size: 13.5px;
+  font-weight: 600;
+  color: var(--blue-deep);
+}
+.article-link:hover {
+  color: var(--teal);
+}
+.article-page {
+  padding-top: 170px;
+  padding-bottom: 120px;
+}
+.article-back {
+  display: inline-block;
+  font-size: 13.5px;
+  font-weight: 500;
+  color: var(--ink-soft);
+}
+.article-back:hover {
+  color: var(--blue-deep);
+}
+.article-title {
+  font-size: clamp(28px, 4vw, 40px);
+  font-weight: 700;
+  margin-top: 14px;
+  line-height: 1.15;
+}
+.article-meta {
+  margin-top: 14px;
+  font-size: 13px;
+  color: var(--ink-soft);
+}
+.article-cover {
+  margin-top: 2px;
+  border-radius: var(--radius);
+  overflow: hidden;
+}
+.article-body {
+  margin-top: 6px;
+  display: grid;
+  gap: 2px;
+}
+.article-body p {
+  font-size: 16.5px;
+  line-height: 1.75;
+  color: var(--ink-soft);
+}
+.article-cta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 14px;
+  margin-top: 44px;
+  padding-top: 32px;
+  border-top: 1px solid var(--line);
+}
+
 /* ---------- habilidades ---------- */
 .skill-groups {
   display: grid;

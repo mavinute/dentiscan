@@ -10,7 +10,7 @@ export default function About() {
           <Reveal className="photo-frame">
             <div className="ph-label mono">
               <Image
-                src="/foto2.png"
+                src="/foto4.png"
                 alt="Foto de perfil"
                 width={750}
                 height={545}
