@@ -1,5 +1,6 @@
 import type { StaticImageData } from 'next/image'
 import scanImage from '@/images/scan.png'
+import IMG2 from '@/images/img1.png'
 
 export interface Article {
   slug: string
@@ -47,7 +48,7 @@ export const articles: Article[] = [
     date: '2026-09-03',
     readTime: '5 min',
     author: 'Matheus Vinute',
-    image: scanImage,
+    image: IMG2,
     content: [
       'Quem pratica esportes costuma cuidar bem do corpo: treina com regularidade, cuida da alimentação e do descanso. Mas um detalhe fica de fora: a saúde da boca. E, ao contrário do que parece, ela tem impacto direto no desempenho físico.',
       'Durante o esforço, o corpo muda — e a boca também. Respiração mais acelerada, boca seca, consumo de géis e isotônicos ricos em açúcar, além do cansaço que faz muita gente relaxar na escovação. Tudo isso cria um ambiente propício a problemas bucais que vão além do desconforto. Por que o atleta deve se preocupar:',
