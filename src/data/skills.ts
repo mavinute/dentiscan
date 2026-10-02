@@ -5,6 +5,25 @@ export interface SkillGroup {
 
 export const skillGroups: SkillGroup[] = [
   {
+    title: 'Dentistica',
+    skills: [
+      'Restauração direta',
+      'Restauração indireta',
+    ],
+  },
+  {
+    title: 'Periodontia',
+    skills: [
+      'Raspagem e alisamento radicular'
+    ],
+  },
+  {
+    title: 'Endodontia',
+    skills: [
+      'Tratamento endodôntico'
+    ],
+  },
+  {
     title: 'Diagnóstico por imagem',
     skills: [
       'Radiografia periapical',
@@ -15,7 +34,7 @@ export const skillGroups: SkillGroup[] = [
   },
   {
     title: 'Reabilitação oral',
-    skills: ['Planejamento reabilitador', 'Prótese', 'Oclusão'],
+    skills: ['Planejamento reabilitador'],
   },
   {
     title: 'Tecnologia',
@@ -24,13 +43,5 @@ export const skillGroups: SkillGroup[] = [
       'Planejamento digital',
       'Ferramentas de IA aplicadas à saúde',
     ],
-  },
-  {
-    title: 'Acadêmico',
-    skills: [
-      'Apresentação de casos',
-      'Produção científica',
-      'Trabalho em liga acadêmica',
-    ],
-  },
+  }
 ]
