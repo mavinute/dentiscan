@@ -15,8 +15,31 @@ const YES_NO_UNKNOWN = ['Sim', 'Não', 'Não sabe']
 
 const WHATSAPP_NUMBER = process.env.NEXT_PUBLIC_WHATSAPP_NUMBER ?? ''
 
+function calculateAge(birthDate: string): number | null {
+  if (!birthDate) return null
+  const birth = new Date(birthDate + 'T00:00:00')
+  if (Number.isNaN(birth.getTime())) return null
+
+  const today = new Date()
+  let age = today.getFullYear() - birth.getFullYear()
+  const hasHadBirthdayThisYear =
+    today.getMonth() > birth.getMonth() ||
+    (today.getMonth() === birth.getMonth() && today.getDate() >= birth.getDate())
+  if (!hasHadBirthdayThisYear) age -= 1
+
+  return age >= 0 ? age : null
+}
+
+function formatDate(iso: string): string {
+  if (!iso) return 'Não informado'
+  const d = new Date(iso + 'T00:00:00')
+  if (Number.isNaN(d.getTime())) return 'Não informado'
+  return d.toLocaleDateString('pt-BR')
+}
+
 export default function PatientForm() {
   const [treatment, setTreatment] = useState('')
+  const [birthDate, setBirthDate] = useState('')
   const [lastTreatmentCompleted, setLastTreatmentCompleted] = useState('')
   const [medicalTreatment, setMedicalTreatment] = useState('')
   const [medication, setMedication] = useState('')
@@ -49,7 +72,8 @@ export default function PatientForm() {
       `E-mail: ${data.email || 'Não informado'}`,
       `Telefone: ${data.phone || 'Não informado'}`,
       `Endereço: ${data.address || 'Não informado'}`,
-      `Idade: ${data.age || 'Não informado'}`,
+      `Data de nascimento: ${formatDate(String(data.birthDate || ''))}`,
+      `Idade: ${calculateAge(String(data.birthDate || '')) ?? 'Não informado'}`,
       '',
       'HISTÓRICO CLÍNICO',
       `Queixa principal: ${data.chiefComplaint || 'Não informado'}`,
@@ -157,8 +181,19 @@ export default function PatientForm() {
                 </label>
 
                 <label className="field">
-                  <span>Idade *</span>
-                  <input name="age" type="number" min="0" max="120" inputMode="numeric" placeholder="Ex.: 29" required />
+                  <span>Data de nascimento *</span>
+                  <input
+                    name="birthDate"
+                    type="date"
+                    autoComplete="bday"
+                    max={new Date().toISOString().split('T')[0]}
+                    value={birthDate}
+                    onChange={(event) => setBirthDate(event.target.value)}
+                    required
+                  />
+                  {birthDate && calculateAge(birthDate) !== null && (
+                    <span className="field-hint">{calculateAge(birthDate)} anos</span>
+                  )}
                 </label>
 
                 <label className="field">
