@@ -37,6 +37,9 @@ export default function Header() {
           <a href="/atendimento" className="nav-cta">
             Pré-atendimento
           </a>
+          <a href="/acesso" className="nav-cta nav-cta-access">
+            Área profissional
+          </a>
         </div>
         <button
           className="burger"
@@ -56,6 +59,9 @@ export default function Header() {
         ))}
         <a href="/atendimento" onClick={() => setMenuOpen(false)}>
           Pré-atendimento
+        </a>
+        <a href="/acesso" onClick={() => setMenuOpen(false)}>
+          Área profissional
         </a>
       </div>
     </header>
