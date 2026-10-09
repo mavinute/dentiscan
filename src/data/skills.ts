@@ -8,7 +8,6 @@ export const skillGroups: SkillGroup[] = [
     title: 'Dentistica',
     skills: [
       'Restauração direta',
-      'Restauração indireta',
     ],
   },
   {

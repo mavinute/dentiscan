@@ -9,12 +9,12 @@ export interface FormationItem {
 
 export const formation: FormationItem[] = [
   {
-    code: 'CORTE 01 · Graduação',
+    code: 'CORTE 01 · GRADUAÇÃO',
     theme: 'yellow',
     title: 'Graduação em Odontologia' ,
     org: 'UNINASSAU',
     description:
-      'Formação acadêmica em odontologia, com ênfase em diagnóstico por imagem e reabilitação oral, proporcionando uma base sólida para a prática clínica e pesquisa científica.',
+      'Formação em andamento na odontologia, com ênfase em diagnóstico por imagem e reabilitação oral, proporcionando uma base sólida para a prática clínica e pesquisa científica.',
     activities: [
       'Odontologia geral e especializada',
       'Tecnicas de diagnóstico por imagem',

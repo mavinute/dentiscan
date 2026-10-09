@@ -16,10 +16,10 @@ export default function Hero() {
             <span className="grad">sorriso reabilitado.</span>
           </h1>
           <p className="lead">
-            Sou estudante de Odontologia, hoje no 6º período, com foco em radiologia
-            odontológica e reabilitação oral. O Dentiscan reúne minha trajetória
-            acadêmica, casos e produções em um só lugar — a ponte entre diagnóstico
-            por imagem e tecnologia aplicada à clínica.
+            Sou estudante de Odontologia, hoje no 6º período, focado em Reabilitação Oral e Radiogologia
+            Odontológica. O Dentiscan é um Hub que reúne minha trajetória acadêmica com casos clinicos e
+            produções acadêmicas em um só lugar funcionando como uma ponte que liga a odontologia
+            com a tecnologia.
           </p>
           <div className="hero-actions">
             {/* <a href="#casos" className="btn btn-primary">

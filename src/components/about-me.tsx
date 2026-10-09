@@ -277,7 +277,7 @@ export default function AboutMe() {
         </div>
       </section>
 
-      <section className="equipment-section">
+      {/* <section className="equipment-section">
         <div className="wrap">
           <Reveal>
             <div className="section-heading centered">
@@ -304,7 +304,7 @@ export default function AboutMe() {
             ))}
           </div>
         </div>
-      </section>
+      </section> */}
 
       <section className="donation-section">
         <div className="wrap">
