@@ -30,15 +30,21 @@ export default function Footer() {
           </div>
           <div className="foot-links foot-col">
             <span>Navegação</span>
-            <a href="#sobre">Sobre</a>
-            <a href="#formacao">Formação</a>
-            <a href="#casos">Casos</a>
-          </div>
-          <div className="foot-links foot-col">
-            <span>Contato</span>
-            <a href="mailto:matheus_vinute@hotmail.com">Email</a>
-            <a href="https://www.instagram.com/dentiscan__">Instagram</a>
-            <a href="#">Lattes</a>
+            <a href="#sobre" target="_blank" rel="noopener noreferrer">
+              Sobre
+            </a>
+            <a href="#formacao" target="_blank" rel="noopener noreferrer">
+              Formação
+            </a>
+            <a href="#casos" target="_blank" rel="noopener noreferrer">
+              Casos
+            </a>
+            <a href="https://www.instagram.com/dentiscan__" target="_blank" rel="noopener noreferrer">
+              Instagram
+            </a>
+            <a href="https://lattes.cnpq.br/5963192695620788 " target="_blank" rel="noopener noreferrer">
+              Lattes
+            </a>
           </div>
         </div>
         <div className="foot-bottom">
