@@ -1,6 +1,11 @@
 # dependencies
 /node_modules
 
+# variaveis de ambriente
+.env
+.env.example
+.env.local
+
 # next.js
 /.next/
 /out/

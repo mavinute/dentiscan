@@ -214,7 +214,7 @@ export default function AboutMe() {
         </div>
       </section>
 
-      <section className="dream-section">
+      {/* <section className="dream-section">
         <div className="wrap">
           <Reveal>
             <div className="dream-card">
@@ -275,7 +275,7 @@ export default function AboutMe() {
             </div>
           </Reveal>
         </div>
-      </section>
+      </section> */}
 
       {/* <section className="equipment-section">
         <div className="wrap">
