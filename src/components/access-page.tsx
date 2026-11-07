@@ -3,6 +3,16 @@
 import { useState } from 'react'
 import type { FormEvent } from 'react'
 import Image from 'next/image'
+import {
+  browserLocalPersistence,
+  browserSessionPersistence,
+  createUserWithEmailAndPassword,
+  sendPasswordResetEmail,
+  setPersistence,
+  signInWithEmailAndPassword,
+  updateProfile,
+} from 'firebase/auth'
+import { auth } from '@/lib/firebase'
 
 const SPECIALTIES = [
   'Clínica geral',
@@ -74,6 +84,8 @@ export default function AccessPage() {
   const [loginEmail, setLoginEmail] = useState('')
   const [loginPassword, setLoginPassword] = useState('')
   const [showPassword, setShowPassword] = useState(false)
+  const [keepConnected, setKeepConnected] = useState(true)
+  const [isSubmitting, setIsSubmitting] = useState(false)
   const [cepLoading, setCepLoading] = useState(false)
   const [cepMessage, setCepMessage] = useState('')
   const [notice, setNotice] = useState<{ type: 'success' | 'error' | 'info'; text: string } | null>(null)
@@ -115,15 +127,45 @@ export default function AccessPage() {
     }
   }
 
-  function handleLogin(event: FormEvent<HTMLFormElement>) {
-    event.preventDefault()
-    setNotice({
-      type: 'info',
-      text: 'A tela de login está pronta, mas a autenticação ainda precisa ser conectada a um provedor seguro (por exemplo, Firebase Authentication). Nenhuma senha foi enviada ou armazenada.',
-    })
+  function firebaseErrorMessage(error: unknown) {
+    const code = typeof error === 'object' && error !== null && 'code' in error
+      ? String((error as { code: unknown }).code)
+      : ''
+
+    const messages: Record<string, string> = {
+      'auth/invalid-credential': 'E-mail ou senha inválidos. Confira os dados e tente novamente.',
+      'auth/user-not-found': 'Não existe uma conta associada a este e-mail.',
+      'auth/wrong-password': 'E-mail ou senha inválidos. Confira os dados e tente novamente.',
+      'auth/invalid-email': 'O endereço de e-mail informado é inválido.',
+      'auth/user-disabled': 'Esta conta foi desativada. Entre em contato com o suporte.',
+      'auth/email-already-in-use': 'Já existe uma conta cadastrada com este e-mail. Tente entrar.',
+      'auth/weak-password': 'A senha não atende aos requisitos mínimos de segurança.',
+      'auth/too-many-requests': 'Muitas tentativas. Aguarde alguns minutos antes de tentar novamente.',
+      'auth/network-request-failed': 'Falha de conexão. Verifique sua internet e tente novamente.',
+      'auth/operation-not-allowed': 'O método de autenticação por e-mail e senha não está habilitado no Firebase Console.',
+      'auth/invalid-api-key': 'A chave de API do Firebase é inválida. Verifique a configuração do projeto.',
+    }
+
+    return messages[code] ?? 'Não foi possível concluir a operação de autenticação. Tente novamente.'
   }
 
-  function handleRegistration(event: FormEvent<HTMLFormElement>) {
+  async function handleLogin(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault()
+    setIsSubmitting(true)
+    setNotice(null)
+
+    try {
+      await setPersistence(auth, keepConnected ? browserLocalPersistence : browserSessionPersistence)
+      await signInWithEmailAndPassword(auth, loginEmail.trim(), loginPassword)
+      setNotice({ type: 'success', text: 'Autenticação realizada com sucesso. Sua sessão está ativa neste dispositivo.' })
+    } catch (error) {
+      setNotice({ type: 'error', text: firebaseErrorMessage(error) })
+    } finally {
+      setIsSubmitting(false)
+    }
+  }
+
+  async function handleRegistration(event: FormEvent<HTMLFormElement>) {
     event.preventDefault()
     if (!registration.specialties.length) {
       setNotice({ type: 'error', text: 'Selecione ao menos uma especialidade ou área de atuação.' })
@@ -141,10 +183,43 @@ export default function AccessPage() {
       setNotice({ type: 'error', text: 'Leia e aceite o aviso de privacidade para continuar.' })
       return
     }
-    setNotice({
-      type: 'info',
-      text: 'Formulário validado nesta interface. Para criar a conta de verdade, é necessário conectar o cadastro a um serviço de autenticação e persistência. Os dados não foram salvos.',
-    })
+
+    setIsSubmitting(true)
+    setNotice(null)
+    try {
+      const credential = await createUserWithEmailAndPassword(
+        auth,
+        registration.email.trim(),
+        registration.password,
+      )
+      await updateProfile(credential.user, { displayName: registration.doctorName.trim() })
+      setNotice({
+        type: 'success',
+        text: 'Conta criada e autenticação iniciada com sucesso. Seu acesso já está conectado. Os demais dados profissionais ainda não foram gravados no banco de dados; essa integração será feita na próxima etapa.',
+      })
+      setRegistration((current) => ({ ...current, password: '', confirmPassword: '' }))
+    } catch (error) {
+      setNotice({ type: 'error', text: firebaseErrorMessage(error) })
+    } finally {
+      setIsSubmitting(false)
+    }
+  }
+
+  async function handlePasswordReset() {
+    if (!loginEmail.trim()) {
+      setNotice({ type: 'info', text: 'Informe seu e-mail profissional para receber o link de redefinição de senha.' })
+      return
+    }
+    setIsSubmitting(true)
+    setNotice(null)
+    try {
+      await sendPasswordResetEmail(auth, loginEmail.trim())
+      setNotice({ type: 'success', text: 'Se houver uma conta vinculada a esse e-mail, o Firebase enviará as instruções para redefinir a senha.' })
+    } catch (error) {
+      setNotice({ type: 'error', text: firebaseErrorMessage(error) })
+    } finally {
+      setIsSubmitting(false)
+    }
   }
 
   function changeMode(nextMode: 'login' | 'register') {
@@ -176,7 +251,7 @@ export default function AccessPage() {
             <div className="access-benefit-icon" aria-hidden="true">⌖</div>
             <div><strong>Cadastro de endereço facilitado</strong><span>Consulte o CEP para preencher automaticamente os dados disponíveis.</span></div>
           </div>
-          <p className="access-note">O cadastro desta versão é uma interface demonstrativa. A criação de contas será ativada após a integração de autenticação.</p>
+          <p className="access-note">A autenticação é realizada pelo Firebase. Os dados profissionais complementares serão integrados ao banco de dados em uma próxima etapa.</p>
           <div className="access-decor access-decor-one" />
           <div className="access-decor access-decor-two" />
         </aside>
@@ -208,8 +283,8 @@ export default function AccessPage() {
                   <button type="button" className="access-show-password" onClick={() => setShowPassword((value) => !value)} aria-label={showPassword ? 'Ocultar senha' : 'Mostrar senha'}>{showPassword ? 'Ocultar' : 'Mostrar'}</button>
                 </div>
               </div>
-              <div className="access-login-options"><label className="access-check"><input type="checkbox" /> <span>Manter conectado neste dispositivo</span></label><button type="button" className="access-text-button" onClick={() => setNotice({ type: 'info', text: 'A recuperação de senha será disponibilizada quando a autenticação estiver conectada.' })}>Esqueci minha senha</button></div>
-              <button className="access-submit" type="submit">Entrar na minha conta <span aria-hidden="true">→</span></button>
+              <div className="access-login-options"><label className="access-check"><input type="checkbox" checked={keepConnected} onChange={(event) => setKeepConnected(event.target.checked)} /> <span>Manter conectado neste dispositivo</span></label><button type="button" className="access-text-button" onClick={() => void handlePasswordReset()} disabled={isSubmitting}>Esqueci minha senha</button></div>
+              <button className="access-submit" type="submit" disabled={isSubmitting}>{isSubmitting ? 'Autenticando…' : 'Entrar na minha conta'} <span aria-hidden="true">→</span></button>
               <p className="access-switch-copy">Ainda não tem perfil? <button type="button" onClick={() => changeMode('register')}>Cadastre sua clínica</button></p>
             </form>
           ) : (
@@ -244,12 +319,12 @@ export default function AccessPage() {
                 <div className="access-field"><label htmlFor="confirm-password">Confirmar senha <span>*</span></label><input id="confirm-password" name="confirmPassword" type="password" autoComplete="new-password" minLength={8} placeholder="Digite a senha novamente" value={registration.confirmPassword} onChange={(e) => updateRegistration('confirmPassword', e.target.value)} required /></div>
               </div>
               <label className="access-privacy-check"><input type="checkbox" checked={registration.acceptPrivacy} onChange={(e) => updateRegistration('acceptPrivacy', e.target.checked)} required /><span>Li e concordo com o aviso de privacidade e autorizo o tratamento dos dados necessários para a gestão do meu perfil profissional.</span></label>
-              <button className="access-submit" type="submit">Validar cadastro <span aria-hidden="true">→</span></button>
+              <button className="access-submit" type="submit" disabled={isSubmitting}>{isSubmitting ? 'Criando conta…' : 'Criar conta profissional'} <span aria-hidden="true">→</span></button>
               <p className="access-switch-copy">Já tem cadastro? <button type="button" onClick={() => changeMode('login')}>Entrar na conta</button></p>
-              <p className="access-form-footnote">Os dados deste formulário são mantidos apenas no estado temporário da página. Não são enviados a um servidor nem armazenados.</p>
+              <p className="access-form-footnote">A conta e o nome do profissional são registrados no Firebase Authentication. Os demais dados do formulário ainda não são persistidos nesta etapa.</p>
             </form>
           )}
-          <div className="access-panel-footer"><span className="access-footer-mark">D</span><span>Odontologia, ciência e tecnologia.</span><span className="access-footer-secure">◈ Ambiente demonstrativo</span></div>
+          <div className="access-panel-footer"><span className="access-footer-mark">D</span><span>Odontologia, ciência e tecnologia.</span><span className="access-footer-secure">◈ Firebase Authentication</span></div>
         </section>
       </div>
     </main>
