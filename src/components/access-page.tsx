@@ -1,9 +1,11 @@
 'use client'
 
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
+import { useRouter } from 'next/navigation'
 import type { FormEvent } from 'react'
 import Image from 'next/image'
 import {
+  onAuthStateChanged,
   browserLocalPersistence,
   browserSessionPersistence,
   createUserWithEmailAndPassword,
@@ -79,6 +81,7 @@ function formatPhone(value: string) {
 }
 
 export default function AccessPage() {
+  const router = useRouter()
   const [mode, setMode] = useState<'login' | 'register'>('register')
   const [registration, setRegistration] = useState<RegistrationData>(initialRegistration)
   const [loginEmail, setLoginEmail] = useState('')
@@ -89,6 +92,13 @@ export default function AccessPage() {
   const [cepLoading, setCepLoading] = useState(false)
   const [cepMessage, setCepMessage] = useState('')
   const [notice, setNotice] = useState<{ type: 'success' | 'error' | 'info'; text: string } | null>(null)
+
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, (user) => {
+      if (user) router.replace('/dashboard')
+    })
+    return unsubscribe
+  }, [router])
 
   function updateRegistration<K extends keyof RegistrationData>(key: K, value: RegistrationData[K]) {
     setRegistration((current) => ({ ...current, [key]: value }))
@@ -157,7 +167,7 @@ export default function AccessPage() {
     try {
       await setPersistence(auth, keepConnected ? browserLocalPersistence : browserSessionPersistence)
       await signInWithEmailAndPassword(auth, loginEmail.trim(), loginPassword)
-      setNotice({ type: 'success', text: 'Autenticação realizada com sucesso. Sua sessão está ativa neste dispositivo.' })
+      router.replace('/dashboard')
     } catch (error) {
       setNotice({ type: 'error', text: firebaseErrorMessage(error) })
     } finally {
@@ -193,6 +203,7 @@ export default function AccessPage() {
         registration.password,
       )
       await updateProfile(credential.user, { displayName: registration.doctorName.trim() })
+      router.replace('/dashboard')
       setNotice({
         type: 'success',
         text: 'Conta criada e autenticação iniciada com sucesso. Seu acesso já está conectado. Os demais dados profissionais ainda não foram gravados no banco de dados; essa integração será feita na próxima etapa.',

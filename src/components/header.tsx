@@ -9,6 +9,7 @@ const NAV_LINKS = [
   { label: 'Casos', href: '#casos' },
   { label: 'Artigos', href: '#artigos' },
   { label: 'Habilidades', href: '#habilidades' },
+  { label: 'Loja', href: '/loja' },
 ]
 
 export default function Header() {
@@ -30,14 +31,14 @@ export default function Header() {
         </a>
         <div className="navlinks">
           {NAV_LINKS.map((link) => (
-            <a key={link.href} href={link.href}>
+            <a key={link.href} href={link.href}> 
               {link.label}
             </a>
           ))}
-          <a href="/atendimento" className="nav-cta">
+          <a href="/atendimento" className="nav-cta" style={{ padding: 10 }}>
             Pré-atendimento
           </a>
-          <a href="/acesso" className="nav-cta nav-cta-access">
+          <a href="/acesso" className="nav-cta nav-cta-access" style={{ padding: 10 }}>
             Área profissional
           </a>
         </div>
@@ -57,6 +58,7 @@ export default function Header() {
             {link.label}
           </a>
         ))}
+        <a href="/loja" onClick={() => setMenuOpen(false)}>Loja</a>
         <a href="/atendimento" onClick={() => setMenuOpen(false)}>
           Pré-atendimento
         </a>
