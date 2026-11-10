@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import type { FormEvent } from 'react'
 import Image from 'next/image'
@@ -14,7 +14,8 @@ import {
   signInWithEmailAndPassword,
   updateProfile,
 } from 'firebase/auth'
-import { auth } from '@/lib/firebase'
+import { auth, db } from '@/lib/firebase'
+import { doc, serverTimestamp, setDoc } from 'firebase/firestore'
 
 const SPECIALTIES = [
   'Clínica geral',
@@ -82,6 +83,7 @@ function formatPhone(value: string) {
 
 export default function AccessPage() {
   const router = useRouter()
+  const isRegisteringRef = useRef(false)
   const [mode, setMode] = useState<'login' | 'register'>('register')
   const [registration, setRegistration] = useState<RegistrationData>(initialRegistration)
   const [loginEmail, setLoginEmail] = useState('')
@@ -95,7 +97,8 @@ export default function AccessPage() {
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (user) => {
-      if (user) router.replace('/dashboard')
+      // Durante o cadastro, aguarda também a gravação do perfil no Firestore.
+      if (user && !isRegisteringRef.current) router.replace('/dashboard')
     })
     return unsubscribe
   }, [router])
@@ -196,6 +199,7 @@ export default function AccessPage() {
 
     setIsSubmitting(true)
     setNotice(null)
+    isRegisteringRef.current = true
     try {
       const credential = await createUserWithEmailAndPassword(
         auth,
@@ -203,15 +207,55 @@ export default function AccessPage() {
         registration.password,
       )
       await updateProfile(credential.user, { displayName: registration.doctorName.trim() })
+
+      // O UID do Authentication é a chave do documento do profissional.
+      // Senha e confirmação de senha nunca são enviadas ao Firestore.
+      const userProfile = {
+        uid: credential.user.uid,
+        doctorName: registration.doctorName.trim(),
+        clinicName: registration.clinicName.trim(),
+        email: credential.user.email ?? registration.email.trim().toLowerCase(),
+        phone: registration.phone.trim(),
+        address: {
+          cep: digits(registration.cep),
+          street: registration.street.trim(),
+          number: registration.number.trim(),
+          complement: registration.complement.trim(),
+          neighborhood: registration.neighborhood.trim(),
+          city: registration.city.trim(),
+          state: registration.state.trim().toUpperCase(),
+        },
+        specialties: registration.specialties,
+        role: 'professional',
+        privacyAccepted: registration.acceptPrivacy,
+        privacyAcceptedAt: serverTimestamp(),
+        createdAt: serverTimestamp(),
+        updatedAt: serverTimestamp(),
+      }
+
+      await setDoc(doc(db, 'users', credential.user.uid), userProfile)
+      setRegistration(initialRegistration)
       router.replace('/dashboard')
-      setNotice({
-        type: 'success',
-        text: 'Conta criada e autenticação iniciada com sucesso. Seu acesso já está conectado. Os demais dados profissionais ainda não foram gravados no banco de dados; essa integração será feita na próxima etapa.',
-      })
-      setRegistration((current) => ({ ...current, password: '', confirmPassword: '' }))
     } catch (error) {
-      setNotice({ type: 'error', text: firebaseErrorMessage(error) })
+      const code = typeof error === 'object' && error !== null && 'code' in error
+        ? String((error as { code: unknown }).code)
+        : ''
+
+      if (code === 'permission-denied' || code === 'firestore/permission-denied') {
+        setNotice({
+          type: 'error',
+          text: 'A conta foi criada no Firebase Authentication, mas o Firestore recusou a gravação do perfil. Publique as regras de segurança fornecidas em firestore.rules. Não tente criar outra conta com o mesmo e-mail; entre em contato com o suporte ou faça login para continuar.',
+        })
+      } else if (code.startsWith('firestore/')) {
+        setNotice({
+          type: 'error',
+          text: 'A conta foi criada, mas não foi possível salvar o perfil no Firestore. Verifique a configuração do banco e as regras de segurança. Não crie outra conta com o mesmo e-mail.',
+        })
+      } else {
+        setNotice({ type: 'error', text: firebaseErrorMessage(error) })
+      }
     } finally {
+      isRegisteringRef.current = false
       setIsSubmitting(false)
     }
   }
@@ -262,7 +306,7 @@ export default function AccessPage() {
             <div className="access-benefit-icon" aria-hidden="true">⌖</div>
             <div><strong>Cadastro de endereço facilitado</strong><span>Consulte o CEP para preencher automaticamente os dados disponíveis.</span></div>
           </div>
-          <p className="access-note">A autenticação é realizada pelo Firebase. Os dados profissionais complementares serão integrados ao banco de dados em uma próxima etapa.</p>
+          <p className="access-note">Sua conta e seus dados profissionais são armazenados com segurança no Firebase.</p>
           <div className="access-decor access-decor-one" />
           <div className="access-decor access-decor-two" />
         </aside>
@@ -332,10 +376,10 @@ export default function AccessPage() {
               <label className="access-privacy-check"><input type="checkbox" checked={registration.acceptPrivacy} onChange={(e) => updateRegistration('acceptPrivacy', e.target.checked)} required /><span>Li e concordo com o aviso de privacidade e autorizo o tratamento dos dados necessários para a gestão do meu perfil profissional.</span></label>
               <button className="access-submit" type="submit" disabled={isSubmitting}>{isSubmitting ? 'Criando conta…' : 'Criar conta profissional'} <span aria-hidden="true">→</span></button>
               <p className="access-switch-copy">Já tem cadastro? <button type="button" onClick={() => changeMode('login')}>Entrar na conta</button></p>
-              <p className="access-form-footnote">A conta e o nome do profissional são registrados no Firebase Authentication. Os demais dados do formulário ainda não são persistidos nesta etapa.</p>
+              <p className="access-form-footnote">A autenticação é realizada pelo Firebase Authentication e os dados profissionais são salvos no Firestore.</p>
             </form>
           )}
-          <div className="access-panel-footer"><span className="access-footer-mark">D</span><span>Odontologia, ciência e tecnologia.</span><span className="access-footer-secure">◈ Firebase Authentication</span></div>
+          <div className="access-panel-footer"><span className="access-footer-mark">D</span><span>Odontologia, ciência e tecnologia.</span><span className="access-footer-secure">◈ Firebase Authentication + Firestore</span></div>
         </section>
       </div>
     </main>

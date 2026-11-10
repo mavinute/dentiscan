@@ -18,8 +18,8 @@ export default function HomePage() {
         <Formation />
         <Cases />
         <Articles />
-        <Skills />
-        <CtaBand />
+        {/* <Skills /> */}
+        {/* <CtaBand /> */}
       </main>
       <Footer />
     </>

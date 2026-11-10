@@ -8,8 +8,8 @@ const NAV_LINKS = [
   { label: 'Formação', href: '#formacao' },
   { label: 'Casos', href: '#casos' },
   { label: 'Artigos', href: '#artigos' },
-  { label: 'Habilidades', href: '#habilidades' },
-  { label: 'Loja', href: '/loja' },
+  // { label: 'Habilidades', href: '#habilidades' },
+  // { label: 'Loja', href: '/loja' },
 ]
 
 export default function Header() {

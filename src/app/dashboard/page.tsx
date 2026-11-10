@@ -52,6 +52,9 @@ export default function DashboardPage() {
           <Link href="/dashboard" className="dashboard-nav-item active" aria-current="page">
             <span aria-hidden="true">⌂</span> Início
           </Link>
+          <Link href="/dashboard/pacientes" className="dashboard-nav-item">
+            <span aria-hidden="true">♧</span> Pacientes
+          </Link>
         </nav>
 
         <div className="dashboard-sidebar-bottom">
@@ -78,6 +81,7 @@ export default function DashboardPage() {
           <h2>Bem-vindo{user.displayName ? `, ${user.displayName.split(' ')[0]}` : ''}.</h2>
           <p>Este é o espaço de acesso às ferramentas e informações da sua área profissional.</p>
         </div>
+        <div className="dashboard-placeholder"><div><h3>Gestão de pacientes</h3><p>Cadastre pacientes e registre anamnese, odontograma e periograma.</p><Link href="/dashboard/pacientes" className="dashboard-action-link">Acessar pacientes →</Link></div></div>
         <div className="dashboard-placeholder">
           <span className="dashboard-placeholder-icon" aria-hidden="true">✳</span>
           <div><h3>Seu espaço profissional está pronto</h3><p>As ferramentas do Dentiscan poderão ser organizadas aqui nas próximas etapas do projeto.</p></div>

@@ -1,0 +1,40 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    function isOwner(uid) {
+      return request.auth != null && request.auth.uid == uid;
+    }
+
+    match /users/{uid} {
+      // Cada profissional pode criar apenas o próprio documento.
+      allow create: if isOwner(uid)
+        && request.resource.data.uid == uid
+        && request.resource.data.role == 'professional'
+        && request.resource.data.keys().hasAll([
+          'uid', 'doctorName', 'clinicName', 'email', 'phone', 'address',
+          'specialties', 'role', 'privacyAccepted', 'privacyAcceptedAt',
+          'createdAt', 'updatedAt'
+        ])
+        && request.resource.data.keys().hasOnly([
+          'uid', 'doctorName', 'clinicName', 'email', 'phone', 'address',
+          'specialties', 'role', 'privacyAccepted', 'privacyAcceptedAt',
+          'createdAt', 'updatedAt'
+        ]);
+
+      // O usuário só pode consultar/alterar seu próprio perfil.
+      // UID, papel e data de criação não podem ser modificados pelo cliente.
+      allow read: if isOwner(uid);
+      allow update: if isOwner(uid)
+        && request.resource.data.uid == resource.data.uid
+        && request.resource.data.role == resource.data.role
+        && request.resource.data.createdAt == resource.data.createdAt;
+      allow delete: if isOwner(uid);
+    }
+
+    // Bloqueia acesso público e às demais coleções até que suas regras
+    // específicas sejam implementadas.
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}
