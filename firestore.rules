@@ -6,7 +6,6 @@ service cloud.firestore {
     }
 
     match /users/{uid} {
-      // Cada profissional pode criar apenas o próprio documento.
       allow create: if isOwner(uid)
         && request.resource.data.uid == uid
         && request.resource.data.role == 'professional'
@@ -21,14 +20,32 @@ service cloud.firestore {
           'createdAt', 'updatedAt'
         ]);
 
-      // O usuário só pode consultar/alterar seu próprio perfil.
-      // UID, papel e data de criação não podem ser modificados pelo cliente.
       allow read: if isOwner(uid);
       allow update: if isOwner(uid)
         && request.resource.data.uid == resource.data.uid
         && request.resource.data.role == resource.data.role
         && request.resource.data.createdAt == resource.data.createdAt;
       allow delete: if isOwner(uid);
+    }
+
+    // O profissional pode criar apenas uma solicitação pendente para si.
+    // A ativação/cancelamento deve ser feita por um processo administrativo confiável.
+    match /subscriptions/{subscriptionId} {
+      allow create: if request.auth != null
+        && request.resource.data.uid == request.auth.uid
+        && request.resource.data.planId == 'monthly'
+        && request.resource.data.provider == 'pagbank_recurring_link'
+        && request.resource.data.status == 'pending_payment'
+        && request.resource.data.amountCents is int
+        && request.resource.data.amountCents > 0
+        && request.resource.data.keys().hasOnly([
+          'uid', 'email', 'planId', 'provider', 'status', 'amountCents', 'createdAt'
+        ])
+        && request.resource.data.createdAt == request.time;
+
+      allow read: if request.auth != null
+        && resource.data.uid == request.auth.uid;
+      allow update, delete: if false;
     }
 
     // Bloqueia acesso público e às demais coleções até que suas regras
