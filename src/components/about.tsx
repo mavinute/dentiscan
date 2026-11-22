@@ -21,12 +21,7 @@ export default function About() {
             <span className="kicker">SOBRE</span>
             <h2>Odontologia e tecnologia, na mesma direção.</h2>
             <p style={{ color: 'var(--ink-soft)', marginTop: 16, fontSize: 16 }}>
-              Sou apaixonado por entender como a tecnologia pode tornar o diagnóstico
-              odontológico mais preciso e a reabilitação mais previsível. Ao longo da
-              graduação, essa curiosidade me levou a duas frentes que se
-              complementam: a leitura fina da imagem e a reconstrução funcional do
-              sorriso. O Dentiscan nasce como o espaço onde essas duas experiências
-              se encontram.
+              Este é o espaço onde compartilho minha trajetória acadêmica e profissional, além de insights sobre odontologia, radiologia e tecnologia aplicada à saúde bucal. Aqui você encontrará informações sobre minha formação, áreas de interesse e projetos em andamento.
             </p>
             <ul className="fact-list">
               <li>

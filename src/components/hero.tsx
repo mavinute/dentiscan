@@ -16,10 +16,7 @@ export default function Hero() {
             <span className="grad">sorriso reabilitado.</span>
           </h1>
           <p className="lead">
-            Sou estudante de Odontologia, hoje no 6º período, focado em Reabilitação Oral e Radiogologia
-            Odontológica. O Dentiscan é um Hub que reúne minha trajetória acadêmica com casos clinicos e
-            produções acadêmicas em um só lugar funcionando como uma ponte que liga a odontologia
-            com a tecnologia.
+            Este é o espaço onde compartilho minha trajetória acadêmica e profissional, além de insights sobre odontologia e tecnologia aplicada à saúde bucal. Aqui você encontrará informações sobre minha formação, áreas de interesse e projetos em andamento.
           </p>
           <div className="hero-actions">
             {/* <a href="#casos" className="btn btn-primary">
